@@ -3,7 +3,6 @@ package org.example.cat.model;
 public class Food {
     private String type;
     private int amount;
-
     public String getType() {
         return type;
     }

@@ -9,34 +9,38 @@ import java.util.Map;
 
 @ApplicationScoped
 public class CatService {
-    private Map<String, Cat> cats = new HashMap<>();
+    private Map<String, Cat> catsUAT = new HashMap<>();
+    private Map<String, Cat> catsPROD = new HashMap<>();
 
     public CatService() {
-        cats.put("Boos", new Cat("Boos"));
-        cats.put("Liposchka", new Cat("Liposchka"));
+        // Initialize UAT cats
+        catsUAT.put("Boos", new Cat("Boos"));
+        catsUAT.put("Liposchka", new Cat("Liposchka"));
+
+        // Initialize PROD cats
+        catsPROD.put("Boos", new Cat("Boos"));
+        catsPROD.put("Liposchka", new Cat("Liposchka"));
     }
 
-    public Map<String, Cat> getCats() {
-        return cats;
+    public Map<String, Cat> getCats(String environment) {
+        return environment.equals("uat") ? catsUAT : catsPROD;
     }
 
-    public Cat getCat(String name) {
-        return cats.get(name);
+    public Cat getCat(String environment, String name) {
+        return environment.equals("uat") ? catsUAT.get(name) : catsPROD.get(name);
     }
 
-    public void addFood(String catName, String type, int amount) {
-        Cat cat = getCat(catName);
+    public void addFood(String environment, String name, String type, int amount) {
+        Cat cat = getCat(environment, name);
         if (cat != null) {
             cat.addFood(type, amount);
         }
     }
 
-    public void removeFood(String catName, String type, int amount) {
-        Cat cat = getCat(catName);
+    public void removeFood(String environment, String name, String type, int amount) {
+        Cat cat = getCat(environment, name);
         if (cat != null) {
             cat.removeFood(type, amount);
         }
     }
 }
-
-

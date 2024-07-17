@@ -4,28 +4,24 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.example.cat.model.FoodTransferOrder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class FoodTransferService {
-    private List<FoodTransferOrder> orders = new ArrayList<>();
+    private Map<String, FoodTransferOrder> ordersUAT = new HashMap<>();
+    private Map<String, FoodTransferOrder> ordersPROD = new HashMap<>();
 
-    public List<FoodTransferOrder> getOrders() {
-        return orders;
-    }
-
-    public FoodTransferOrder getOrder(int id) {
-        return orders.stream().filter(order -> order.getId() == id).findFirst().orElse(null);
-    }
-
-    public void addOrder(FoodTransferOrder order) {
-        orders.add(order);
-    }
-
-    public void updateOrderStatus(int id, String status) {
-        FoodTransferOrder order = getOrder(id);
-        if (order != null) {
-            order.setStatus(status);
+    public void addOrder(String environment, FoodTransferOrder order) {
+        if (environment.equals("uat")) {
+            ordersUAT.put(order.getId(), order);
+        } else {
+            ordersPROD.put(order.getId(), order);
         }
+    }
+
+    public FoodTransferOrder getOrder(String environment, String orderId) {
+        return environment.equals("uat") ? ordersUAT.get(orderId) : ordersPROD.get(orderId);
     }
 }
