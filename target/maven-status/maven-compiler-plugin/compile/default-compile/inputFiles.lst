@@ -1,0 +1,8 @@
+/Users/artemkot/java/projects/quarkus_api_training/src/main/java/org/example/cat/model/Cat.java
+/Users/artemkot/java/projects/quarkus_api_training/src/main/java/org/example/cat/model/Food.java
+/Users/artemkot/java/projects/quarkus_api_training/src/main/java/org/example/cat/model/FoodTransferOrder.java
+/Users/artemkot/java/projects/quarkus_api_training/src/main/java/org/example/cat/model/Stock.java
+/Users/artemkot/java/projects/quarkus_api_training/src/main/java/org/example/cat/resource/CatResource.java
+/Users/artemkot/java/projects/quarkus_api_training/src/main/java/org/example/cat/resource/FoodTransferResource.java
+/Users/artemkot/java/projects/quarkus_api_training/src/main/java/org/example/cat/service/CatService.java
+/Users/artemkot/java/projects/quarkus_api_training/src/main/java/org/example/cat/service/FoodTransferService.java

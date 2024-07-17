@@ -1,0 +1,8 @@
+org/example/cat/service/CatService.class
+org/example/cat/model/Food.class
+org/example/cat/resource/CatResource.class
+org/example/cat/model/FoodTransferOrder.class
+org/example/cat/model/Cat.class
+org/example/cat/service/FoodTransferService.class
+org/example/cat/model/Stock.class
+org/example/cat/resource/FoodTransferResource.class
