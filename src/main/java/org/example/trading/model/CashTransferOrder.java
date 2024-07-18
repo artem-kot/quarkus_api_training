@@ -1,28 +1,28 @@
-package org.example.cat.model;
+package org.example.trading.model;
 
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FoodTransferOrder {
+public class CashTransferOrder {
     private static final AtomicInteger counter = new AtomicInteger(0);
 
     private String id;
     private String status;
     private String sender;
     private String recipient;
-    private String type;
+    private Ccy ccy;
     private int amount;
 
-    public FoodTransferOrder() {
+    public CashTransferOrder() {
         this.id = Instant.now().toEpochMilli() + "_" + counter.incrementAndGet();
         this.status = "new";
     }
 
-    public FoodTransferOrder(String sender, String recipient, String type, int amount) {
+    public CashTransferOrder(String sender, String recipient, Ccy currency, int amount) {
         this();
         this.sender = sender;
         this.recipient = recipient;
-        this.type = type;
+        this.ccy = currency;
         this.amount = amount;
     }
 
@@ -46,8 +46,8 @@ public class FoodTransferOrder {
         return recipient;
     }
 
-    public String getType() {
-        return type;
+    public Ccy getCcy() {
+        return ccy;
     }
 
     public int getAmount() {
