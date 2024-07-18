@@ -13,6 +13,9 @@ public class FoodTransferOrder {
     private String type;
     private int amount;
 
+    public FoodTransferOrder() {
+    }
+
     public FoodTransferOrder(String environment, String sender, String recipient, String type, int amount) {
         this.id = generateId(environment);
         this.status = "new";

@@ -1,5 +1,7 @@
 package org.example.cat.resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -7,6 +9,9 @@ import jakarta.ws.rs.core.Response;
 import org.example.cat.model.Cat;
 import org.example.cat.model.Food;
 import org.example.cat.service.CatService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Path("/p/cats")
 @Produces(MediaType.APPLICATION_JSON)
@@ -18,7 +23,14 @@ public class PRODCatResource {
 
     @GET
     public Response getCats() {
-        return Response.ok(catService.getCats("prod")).build();
+        Map<String, Cat> cats = catService.getCats("prod");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String catsJson = mapper.writeValueAsString(cats);
+            return Response.ok(catsJson).build();
+        } catch (JsonProcessingException e) {
+            return Response.serverError().entity("Error converting cats to JSON").build();
+        }
     }
 
     @POST
@@ -36,7 +48,7 @@ public class PRODCatResource {
                     .build();
         }
         catService.addFood("prod", catName, food.getType(), food.getAmount());
-        return Response.ok().build();
+        return Response.ok().entity(catService.getCats("prod")).build();
     }
 
     @DELETE
@@ -53,7 +65,15 @@ public class PRODCatResource {
                     .entity("Unknown food type: " + food.getType())
                     .build();
         }
+        if (("wet".equals(food.getType()) && cat.getFoodStock().get("wet") <= food.getAmount())
+                || "dry".equals(food.getType()) && cat.getFoodStock().get("dry") <= food.getAmount()) {
+            Map<String, String> error = new HashMap<>();
+            error.put("Error", "Can't remove " + food.getAmount() + " of " + food.getType() + " food from " + catName);
+            error.put("Details", catName + " has " + cat.getFoodStock().get(food.getType()) + " of " + food.getType() + " food");
+
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(error).build();
+        }
         catService.removeFood("prod", catName, food.getType(), food.getAmount());
-        return Response.ok().build();
+        return Response.ok().entity(catService.getCats("prod")).build();
     }
 }

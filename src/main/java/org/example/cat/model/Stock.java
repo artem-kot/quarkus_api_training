@@ -1,8 +1,22 @@
 package org.example.cat.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Stock {
-        private String type;
-        private int amount;
+
+    public Stock() {
+    }
+
+    public Stock(String type, int amount) {
+        this.type = type;
+        this.amount = amount;
+    }
+
+    @JsonProperty("type")
+    private String type;
+
+    @JsonProperty("amount")
+    private int amount;
 
     public String getType() {
         return type;

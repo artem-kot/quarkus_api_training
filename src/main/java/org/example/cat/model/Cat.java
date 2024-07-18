@@ -1,15 +1,23 @@
 package org.example.cat.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Cat {
+    @JsonProperty("name")
     private String name;
-    private Map<String, Integer> foodStock = new HashMap<>();
-    private boolean isHungry;
+
+    @JsonProperty("foodStock")
+    private Map<String, Integer> foodStock;
+
+    public Cat() {
+    }
 
     public Cat(String name) {
         this.name = name;
+        this.foodStock = new HashMap<>();
         this.foodStock.put("dry", 0);
         this.foodStock.put("wet", 0);
     }
@@ -23,18 +31,14 @@ public class Cat {
     }
 
     public void addFood(String type, int amount) {
-        this.foodStock.put(type, this.foodStock.getOrDefault(type, 0) + amount);
+        foodStock.put(type, foodStock.get(type) + amount);
     }
 
     public void removeFood(String type, int amount) {
-        this.foodStock.put(type, this.foodStock.getOrDefault(type, 0) - amount);
+        foodStock.put(type, foodStock.get(type) - amount);
     }
 
     public boolean isHungry() {
-        return isHungry;
-    }
-
-    public void setHungry(boolean hungry) {
-        isHungry = hungry;
+        return (foodStock.get("dry") + foodStock.get("wet")) < 115;
     }
 }

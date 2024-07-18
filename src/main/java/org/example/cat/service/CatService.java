@@ -13,11 +13,9 @@ public class CatService {
     private Map<String, Cat> catsPROD = new HashMap<>();
 
     public CatService() {
-        // Initialize UAT cats
         catsUAT.put("Boos", new Cat("Boos"));
         catsUAT.put("Liposchka", new Cat("Liposchka"));
 
-        // Initialize PROD cats
         catsPROD.put("Boos", new Cat("Boos"));
         catsPROD.put("Liposchka", new Cat("Liposchka"));
     }
@@ -39,7 +37,7 @@ public class CatService {
 
     public void removeFood(String environment, String name, String type, int amount) {
         Cat cat = getCat(environment, name);
-        if (cat != null) {
+        if (cat != null && cat.getFoodStock().get(type) >= amount) {
             cat.removeFood(type, amount);
         }
     }
