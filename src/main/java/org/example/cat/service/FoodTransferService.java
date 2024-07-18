@@ -3,10 +3,7 @@ package org.example.cat.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.example.cat.model.FoodTransferOrder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ApplicationScoped
 public class FoodTransferService {
@@ -23,5 +20,9 @@ public class FoodTransferService {
 
     public FoodTransferOrder getOrder(String environment, String orderId) {
         return environment.equals("uat") ? ordersUAT.get(orderId) : ordersPROD.get(orderId);
+    }
+
+    public Set<Map.Entry<String, FoodTransferOrder>> getAllOrders(String environment) {
+        return environment.equals("uat") ? ordersUAT.entrySet() : ordersPROD.entrySet();
     }
 }
