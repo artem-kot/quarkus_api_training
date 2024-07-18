@@ -10,19 +10,23 @@ import org.example.cat.model.Cat;
 import org.example.cat.model.Food;
 import org.example.cat.service.CatService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Path("/u/cats")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UATCatResource {
+    private String env = "uat";
 
     @Inject
     CatService catService;
+    Map<String, String> error = new HashMap<>();
+
 
     @GET
     public Response getCats() {
-        Map<String, Cat> cats = catService.getCats("uat");
+        Map<String, Cat> cats = catService.getCats(env);
         ObjectMapper mapper = new ObjectMapper();
         try {
             String catsJson = mapper.writeValueAsString(cats);
@@ -35,7 +39,7 @@ public class UATCatResource {
     @POST
     @Path("/{catName}/food")
     public Response addFood(@PathParam("catName") String catName, Food food) {
-        Cat cat = catService.getCat("uat", catName);
+        Cat cat = catService.getCat(env, catName);
         if (cat == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Cat with name " + catName + " not found.")
@@ -46,14 +50,14 @@ public class UATCatResource {
                     .entity("Unknown food type: " + food.getType())
                     .build();
         }
-        catService.addFood("uat", catName, food.getType(), food.getAmount());
-        return Response.ok().build();
+        catService.addFood(env, catName, food.getType(), food.getAmount());
+        return Response.ok().entity(catService.getCats(env)).build();
     }
 
     @DELETE
     @Path("/{catName}/food")
     public Response removeFood(@PathParam("catName") String catName, Food food) {
-        Cat cat = catService.getCat("uat", catName);
+        Cat cat = catService.getCat(env, catName);
         if (cat == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Cat with name " + catName + " not found.")
@@ -64,7 +68,14 @@ public class UATCatResource {
                     .entity("Unknown food type: " + food.getType())
                     .build();
         }
-        catService.removeFood("uat", catName, food.getType(), food.getAmount());
-        return Response.ok().build();
+        if (("wet".equals(food.getType()) && cat.getFoodStock().get("wet") < food.getAmount())
+                || "dry".equals(food.getType()) && cat.getFoodStock().get("dry") < food.getAmount()) {
+            error.put("Error", "Can't remove " + food.getAmount() + " of " + food.getType() + " food from " + catName);
+            error.put("Details", catName + " has " + cat.getFoodStock().get(food.getType()) + " of " + food.getType() + " food");
+
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(error).build();
+        }
+        catService.removeFood(env, catName, food.getType(), food.getAmount());
+        return Response.ok().entity(catService.getCats(env)).build();
     }
 }
