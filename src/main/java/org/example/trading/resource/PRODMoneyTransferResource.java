@@ -52,6 +52,14 @@ public class PRODMoneyTransferResource {
                     .build();
         }
 
+        if (!senderTradingUnit.isTradingReady()) {
+            Map<String, String> error = new HashMap<>();
+            error.put("Error", "Sender is not ready for trading due to the low cash amount");
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(error)
+                    .build();
+        }
+
         if (senderTradingUnit.getStock().get(inputOrder.getCcy()) < inputOrder.getAmount()) {
             Map<String, String> error = new HashMap<>();
             error.put("Error", "Not enough cash in stock for transfer");
@@ -93,10 +101,17 @@ public class PRODMoneyTransferResource {
             tradingUnitService.addCash(env, order.getRecipient(), order.getCcy(), order.getAmount());
             order.setStatus("completed");
             return Response.ok(order).build();
-        }
-        error.put("Error", "Order with id " + orderId + " not found or not in progress");
+        } else if (!"in_progress".equals(order.getStatus())) {
+            error.put("Error", "Order with id " + orderId + " is not in progress");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(error)
+                    .build();
+        } else {
+        error.put("Error", "Order with id " + orderId + " is not found");
         return Response.status(Response.Status.NOT_FOUND)
                 .entity(error)
                 .build();
+        }
     }
+
 }

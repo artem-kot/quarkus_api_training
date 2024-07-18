@@ -45,6 +45,6 @@ public class TradingUnit {
     }
 
     public boolean isTradingReady() {
-        return (stock.get(USD) + stock.get(EUR)) < 1000;
+        return (stock.get(USD) + stock.get(EUR)) > 1000;
     }
 }
