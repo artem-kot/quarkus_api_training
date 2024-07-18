@@ -14,20 +14,16 @@ public class FoodTransferOrder {
     private int amount;
 
     public FoodTransferOrder() {
+        this.id = Instant.now().toEpochMilli() + "_" + counter.incrementAndGet();
+        this.status = "new";
     }
 
-    public FoodTransferOrder(String environment, String sender, String recipient, String type, int amount) {
-        this.id = generateId(environment);
-        this.status = "new";
+    public FoodTransferOrder(String sender, String recipient, String type, int amount) {
+        this();
         this.sender = sender;
         this.recipient = recipient;
         this.type = type;
         this.amount = amount;
-    }
-
-    private String generateId(String environment) {
-        String prefix = environment.equals("uat") ? "U_" : "P_";
-        return prefix + Instant.now().toEpochMilli() + "_" + counter.incrementAndGet();
     }
 
     public String getId() {

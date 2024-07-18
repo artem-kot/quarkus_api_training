@@ -41,4 +41,4 @@ nb-configuration.xml
 
 # Plugin directory
 /.quarkus/cli/plugins/
-/target/
+/target
