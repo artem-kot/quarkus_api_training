@@ -1,4 +1,4 @@
-package org.example.cat.model;
+package org.example.trading.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -7,23 +7,23 @@ public class Stock {
     public Stock() {
     }
 
-    public Stock(String type, int amount) {
-        this.type = type;
+    public Stock(Ccy ccy, int amount) {
+        this.ccy = ccy;
         this.amount = amount;
     }
 
-    @JsonProperty("type")
-    private String type;
+    @JsonProperty("currency")
+    private Ccy ccy;
 
     @JsonProperty("amount")
     private int amount;
 
-    public String getType() {
-        return type;
+    public Ccy getCcy() {
+        return ccy;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setCcy(Ccy ccy) {
+        this.ccy = ccy;
     }
 
     public int getAmount() {
