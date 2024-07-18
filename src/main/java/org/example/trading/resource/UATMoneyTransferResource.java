@@ -1,81 +1,81 @@
-package org.example.cat.resource;
+package org.example.trading.resource;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.example.cat.model.Cat;
-import org.example.cat.model.FoodTransferOrder;
-import org.example.cat.service.CatService;
-import org.example.cat.service.FoodTransferService;
+import org.example.trading.model.Ccy;
+import org.example.trading.model.TradingUnit;
+import org.example.trading.model.CashTransferOrder;
+import org.example.trading.service.TradingUnitService;
+import org.example.trading.service.MoneyTransferService;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-@Path("/u/food-transfer")
+@Path("/u/money-transfer")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class UATFoodTransferResource {
+public class UATMoneyTransferResource {
 
     String env = "uat";
     Map<String, String> error = new HashMap<>();
 
     @Inject
-    FoodTransferService foodTransferService;
+    MoneyTransferService moneyTransferService;
 
     @Inject
-    CatService catService;
+    TradingUnitService tradingUnitService;
 
     @GET
     public Response getOrders() {
-        return Response.ok().entity(foodTransferService.getAllOrders(env)).build();
+        return Response.ok().entity(moneyTransferService.getAllOrders(env)).build();
     }
 
     @POST
-    public Response createFoodTransferOrder(FoodTransferOrder inputOrder) {
-        Cat senderCat = catService.getCat(env, inputOrder.getSender());
-        Cat recipientCat = catService.getCat(env, inputOrder.getRecipient());
+    public Response createFoodTransferOrder(CashTransferOrder inputOrder) {
+        TradingUnit senderTradingUnit = tradingUnitService.getTradingUnit(env, inputOrder.getSender());
+        TradingUnit recipientTradingUnit = tradingUnitService.getTradingUnit(env, inputOrder.getRecipient());
 
-        if (senderCat == null || recipientCat == null) {
+        if (senderTradingUnit == null || recipientTradingUnit == null) {
             Map<String, String> error = new HashMap<>();
-            error.put("Error", "One or both cats not found");
+            error.put("Error", "One or both locations not found");
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(error)
                     .build();
         }
 
-        if (!inputOrder.getType().equals("dry") && !inputOrder.getType().equals("wet")) {
+        if (inputOrder.getCcy() == null || !EnumSet.allOf(Ccy.class).contains(inputOrder.getCcy())) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Unknown currency type: " + inputOrder.getCcy())
+                    .build();
+        }
+
+        if (senderTradingUnit.getStock().get(inputOrder.getCcy()) < inputOrder.getAmount()) {
             Map<String, String> error = new HashMap<>();
-            error.put("Error", "Unknown food type: " + inputOrder.getType());
+            error.put("Error", "Not enough cash in stock for transfer");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(error)
                     .build();
         }
 
-        if (senderCat.getFoodStock().get(inputOrder.getType()) < inputOrder.getAmount()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", "Not enough food in stock for transfer");
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(error)
-                    .build();
-        }
-
-        FoodTransferOrder order = new FoodTransferOrder(
+        CashTransferOrder order = new CashTransferOrder(
                 inputOrder.getSender(),
                 inputOrder.getRecipient(),
-                inputOrder.getType(),
+                inputOrder.getCcy(),
                 inputOrder.getAmount()
         );
         order.setStatus("new");
-        foodTransferService.addOrder(env, order);
-        catService.removeFood(env, order.getSender(), order.getType(), order.getAmount());
+        moneyTransferService.addOrder(env, order);
+        tradingUnitService.removeCash(env, order.getSender(), order.getCcy(), order.getAmount());
         return Response.ok(order).build();
     }
 
     @GET
     @Path("/{orderId}")
     public Response getFoodTransferOrder(@PathParam("orderId") String orderId) {
-        FoodTransferOrder order = foodTransferService.getOrder(env, orderId);
+        CashTransferOrder order = moneyTransferService.getOrder(env, orderId);
         if (order == null) {
             error.put("Error", "Order with id " + orderId + " not found");
             return Response.status(Response.Status.NOT_FOUND)
@@ -87,10 +87,10 @@ public class UATFoodTransferResource {
 
     @PUT
     @Path("/{orderId}/complete")
-    public Response completeFoodTransferOrder(@PathParam("orderId") String orderId) {
-        FoodTransferOrder order = foodTransferService.getOrder(env, orderId);
+    public Response completeMoneyTransferOrder(@PathParam("orderId") String orderId) {
+        CashTransferOrder order = moneyTransferService.getOrder(env, orderId);
         if (order != null && "in_progress".equals(order.getStatus())) {
-            catService.addFood(env, order.getRecipient(), order.getType(), order.getAmount());
+            tradingUnitService.addCash(env, order.getRecipient(), order.getCcy(), order.getAmount());
             order.setStatus("completed");
             return Response.ok(order).build();
         }
