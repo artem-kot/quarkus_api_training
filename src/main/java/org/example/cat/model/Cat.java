@@ -39,6 +39,7 @@ public class Cat {
     }
 
     public boolean isHungry() {
-        return (foodStock.get("dry") + foodStock.get("wet")) < 115;
+        return "Liposchka".equals(name) ? (foodStock.get("dry") + foodStock.get("wet")) < 495
+                : (foodStock.get("dry") + foodStock.get("wet")) < 115;
     }
 }
